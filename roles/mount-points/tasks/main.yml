@@ -1,0 +1,31 @@
+---
+- name: Create mount point data1
+  file:
+    path: /mnt/data1
+    state: directory
+
+- name: Create mount point data2
+  file:
+    path: /mnt/data2
+    state: directory
+
+- name: Create mount point parity1
+  file:
+    path: /mnt/parity1
+    state: directory
+
+- name: Create mount point storage
+  file:
+    path: /media/storage
+    state: directory
+
+- name: Create mount point cached storage
+  file:
+    path: /media/cached_storage
+    state: directory
+
+- name: Copy fstab
+  copy:
+    src: files/fstab
+    dest: /etc/fstab
+  notify: fstab

@@ -1,0 +1,30 @@
+---
+- name: Install dependencies
+  apt:
+    pkg:
+      - python3-pip
+      - borgbackup
+
+- name: Install borgmatic
+  pip:
+    name: borgmatic
+
+- name: Create /etc/borgmatic
+  file:
+    path: /etc/borgmatic
+    state: directory
+
+- name: Copy config file
+  copy:
+    src: files/borgmatic-config.yaml
+    dest: /etc/borgmatic/config.yaml
+  notify: restart cron
+  tags: cron
+
+- name: Copy borg cron
+  copy:
+    src: files/borgmatic-cron
+    dest: /etc/cron.d/borgmatic
+    mode: '0744'
+  notify: restart cron
+  tags: cron

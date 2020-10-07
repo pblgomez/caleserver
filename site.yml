@@ -1,0 +1,87 @@
+---
+- hosts: all
+  become: true
+
+  vars_files:
+    - vars.yaml
+
+  pre_tasks:
+    - name: Update cache if needed
+      apt: update_cache=true cache_valid_time=3600 #seconds
+    - name: Upgrade apt packages
+      apt: upgrade=dist autoremove=yes purge=yes
+
+  handlers:
+    - name: Restart ssh service
+      service:
+        name: ssh
+        state: restarted
+
+    - name: Reboot
+      reboot:
+        reboot_timeout: 3600
+
+  tasks:
+    - name: Set timezone
+      community.general.timezone:
+        name: "{{ tz }}"
+
+
+    - name: Password based logins are disabled - only public key based logins are allowed.
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      with_items:
+        - { regexp: "^PasswordAuthentication", line: "PasswordAuthentication no", }
+        - { regexp: "^ChallengeResponseAuthentication", line: "ChallengeResponseAuthentication no", }
+        - { regexp: "^UsePAM", line: "UsePAM no" }
+      notify: Restart ssh service
+
+    - name: Install packages
+      apt:
+        name:
+          - docker.io
+          - docker-compose
+          - zram-config
+        state: present
+
+    - name: Enable docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add the user ubuntu to the docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    - name: Lower gpu mem
+      lineinfile:
+        path: /boot/firmware/usercfg.txt
+        line: gpu_mem=16
+      notify: Reboot
+
+    - name: ZRAM config2
+      lineinfile:
+        path: /etc/sysctl.conf
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      with_items:
+        - { regexp: "^vm.vfs_cache_pressure", line: "vm.vfs_cache_pressure=500", }
+        - { regexp: "^vm.swappiness", line: "vm.swappiness=100" }
+        - { regexp: "^vm.dirty_background_ratio", line: "vm.dirty_background_ratio=1", }
+        - { regexp: "^vm.dirty_ratio", line: "vm.dirty_ratio=50" }
+      notify: Reboot
+
+    - hostname:
+        name: "{{ hostname }}"
+      notify: Reboot
+
+  roles:
+    - mergerfs-snapraid
+    - mount-points
+    - borg-backup
+    - docker-compose

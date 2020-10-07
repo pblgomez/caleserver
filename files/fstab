@@ -1,0 +1,10 @@
+LABEL=writable  /        ext4   defaults        0 0
+LABEL=system-boot       /boot/firmware  vfat    defaults        0       1
+
+LABEL=SSD720    /mnt/data1      ext4    nofail,defaults         0       0
+LABEL=Data2     /mnt/data2      ext4    defaults,nofail         0       0
+LABEL=Parity1 /mnt/parity1      ext4    defaults,nofail         0       0
+
+/mnt/dat*	/media/storage		fuse.mergerfs	defaults,allow_other,direct_io,use_ino,hard_remove,moveonenospc=true,minfreespace=5G,fsname=storage 0	0
+# another one for special cases where mmap is used (rtorrent) or databases
+/mnt/data*	/media/cached_storage	fuse.mergerfs	dropcacheonclose=true,defaults,allow_other,minfreespace=5G,fsname=cached_storage     0 0

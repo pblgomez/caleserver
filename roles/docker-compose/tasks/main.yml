@@ -1,0 +1,20 @@
+---
+- name: copy docker-compose
+  copy:
+    src: files/docker-compose.yaml
+    dest: /home/ubuntu/docker_compose.yaml
+
+- name: copy .env
+  copy:
+    src: files/.env
+    dest: /home/ubuntu/.env
+
+- name: Docker compose pull
+  docker_compose:
+    project_src: /home/ubuntu/
+    pull: yes
+
+- name: Docker compose up
+  docker_compose:
+    project_src: /home/ubuntu/
+    state: present

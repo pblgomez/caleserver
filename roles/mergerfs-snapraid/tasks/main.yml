@@ -1,0 +1,48 @@
+---
+- name: Install mergerfs packages
+  apt:
+    pkg:
+      - mergerfs
+      - dh-autoreconf
+
+- name: Check for snapraid
+  shell: hash snapraid
+  register: snapraid
+  changed_when: false
+
+- name: Download snapraid
+  get_url:
+    url: https://github.com/amadvance/snapraid/releases/download/v11.5/snapraid-11.5.tar.gz
+    dest: /opt
+  when: '"not found" in snapraid.stdout'
+
+- name: Decompress snapraid
+  unarchive:
+    src: /opt/snapraid-11.5.tar.gz
+    dest: /opt
+    remote_src: yes
+  when: '"not found" in snapraid.stdout'
+
+- name: Autogen
+  command: ./autogen.sh
+  args:
+    chdir: /opt/snapraid-11.5
+  when: '"not found" in snapraid.stdout'
+
+- name: Configure
+  command: ./configure
+  args:
+    chdir: /opt/snapraid-11.5
+  when: '"not found" in snapraid.stdout'
+
+- name: Make
+  command: make
+  args:
+    chdir: /opt/snapraid-11.5
+  when: '"not found" in snapraid.stdout'
+
+- name: make install
+  command: make install
+  args:
+    chdir: /opt/snapraid-11.5
+  when: '"not found" in snapraid.stdout'
