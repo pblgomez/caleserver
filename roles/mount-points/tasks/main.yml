@@ -24,6 +24,11 @@
     path: /media/cached_storage
     state: directory
 
+- name: Create mount point MoviesKids
+  file:
+    path: /MoviesKids
+    state: directory
+
 - name: Copy fstab
   copy:
     src: files/fstab

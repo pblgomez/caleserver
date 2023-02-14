@@ -2,9 +2,11 @@ LABEL=writable  /        ext4   defaults        0 0
 LABEL=system-boot       /boot/firmware  vfat    defaults        0       1
 
 LABEL=SSD720    /mnt/data1      ext4    nofail,defaults         0       0
-LABEL=Data2     /mnt/data2      ext4    defaults,nofail         0       0
+UUID=ea57c8ae-d44f-4f3c-846c-568275dfe867       /mnt/data2      btrfs   defaults,compress=zstd:3,ssd,noatime,subvol=@nas,space_cache,commit=120
 LABEL=Parity1 /mnt/parity1      ext4    defaults,nofail         0       0
 
 /mnt/dat*	/media/storage		fuse.mergerfs	defaults,allow_other,direct_io,use_ino,hard_remove,moveonenospc=true,minfreespace=5G,fsname=storage 0	0
 # another one for special cases where mmap is used (rtorrent) or databases
 /mnt/data*	/media/cached_storage	fuse.mergerfs	dropcacheonclose=true,defaults,allow_other,minfreespace=5G,fsname=cached_storage     0 0
+
+//192.168.99.239/MoviesKids             /MoviesKids             cifs    uid=1000,gid=1000,guest         0       0
